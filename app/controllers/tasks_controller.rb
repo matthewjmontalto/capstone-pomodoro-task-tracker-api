@@ -1,21 +1,23 @@
-class TasksController < ApplicationController
-  before_action :set_task, only: [:show, :update, :destroy]
+# frozen_string_literal: true
+
+class TasksController < ProtectedController
+  before_action :set_task, only: %i[update destroy]
 
   # GET /tasks
   def index
-    @tasks = Task.all
+    @tasks = current_user.tasks
 
     render json: @tasks
   end
 
   # GET /tasks/1
   def show
-    render json: @task
+    render json: Task.find(params[:id])
   end
 
   # POST /tasks
   def create
-    @task = Task.new(task_params)
+    @task = current_user.tasks.build(task_params)
 
     if @task.save
       render json: @task, status: :created, location: @task
@@ -38,14 +40,15 @@ class TasksController < ApplicationController
     @task.destroy
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_task
-      @task = Task.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_task
+    @task = current_user.tasks.find(params[:id])
+  end
 
-    # Only allow a trusted parameter "white list" through.
-    def task_params
-      params.require(:task).permit(:title, :description, :date, :completed, :difficulty, :number_pomodoro_sessions)
-    end
+  # Only allow a trusted parameter "white list" through.
+  def task_params
+    params.require(:task).permit(:title, :description, :date, :completed, :difficulty, :number_pomodoro_sessions)
+  end
+
+  private :set_task, :task_params
 end
