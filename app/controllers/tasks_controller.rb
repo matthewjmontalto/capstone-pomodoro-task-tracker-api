@@ -12,7 +12,7 @@ class TasksController < ProtectedController
 
   # GET /tasks/1
   def show
-    render json: Task.find(params[:id])
+    render json: current_user.tasks.find(params[:id])
   end
 
   # POST /tasks
